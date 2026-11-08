@@ -18,7 +18,7 @@ use Variant\Connector\Model\PageContext;
  *
  * Both tags are parser-blocking on purpose (no async, no defer): the engine buckets
  * the visitor and applies redirect and DOM tests before first paint, which is what
- * keeps the control page from flashing. See storefront-sdk/README-bundle.md.
+ * keeps the control page from flashing.
  *
  * Every tag carries `data-variant-runtime`, by which KeepRuntimeTagsInHead finds them again
  * when Magento's "Move JS code to the bottom of the page" has moved them. The config tag also

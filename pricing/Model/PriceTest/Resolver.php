@@ -7,9 +7,8 @@ declare(strict_types=1);
 namespace Variant\Pricing\Model\PriceTest;
 
 /**
- * A cart item's price-test price — a PHP mirror of the Shopify price-overrider Cart Transform
- * (apps/shopify-app/extensions/price-overrider/src/cart_transform_run.rs), reading the same
- * compact config the backend builds:
+ * A cart item's price-test price — a PHP mirror of Variant's Shopify price-test Cart Transform,
+ * reading the same compact config the backend builds:
  *
  *   { "EXP…:variantId": { "on": true, "r": [ { p, t, v } | { p, t, d, o } | { p, vr } ] } }
  *

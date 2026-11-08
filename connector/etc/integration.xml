@@ -21,7 +21,7 @@
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Integration:etc/integration/integration.xsd">
     <integration name="Variant">
         <!-- Magento's converter reads this unconditionally even though the schema marks it optional. -->
-        <email>support@variantnow.com</email>
+        <email>info@variantnow.com</email>
         <endpoint_url>https://backend.variantnow.com/magento/oauth/callback</endpoint_url>
         <identity_link_url>https://app.variantnow.com/auth/magento</identity_link_url>
         <resources>

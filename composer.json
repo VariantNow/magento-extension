@@ -15,11 +15,11 @@
   "authors": [
     {
       "name": "Variant",
-      "email": "support@variantnow.com"
+      "email": "info@variantnow.com"
     }
   ],
   "support": {
-    "email": "support@variantnow.com",
+    "email": "info@variantnow.com",
     "docs": "https://github.com/VariantNow/magento-extension/blob/main/INSTALL.md"
   },
   "require": {

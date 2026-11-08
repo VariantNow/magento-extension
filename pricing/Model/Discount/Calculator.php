@@ -7,9 +7,9 @@ declare(strict_types=1);
 namespace Variant\Pricing\Model\Discount;
 
 /**
- * Each cart line's experiment discount — a PHP MIRROR of the Shopify experiment discount
- * function (apps/shopify-app/extensions/experiment-discount-function/src: active-keys.ts,
- * packs.ts, rec-token.ts), reading the same compact config the backend builds:
+ * Each cart line's experiment discount — a PHP MIRROR of Variant's Shopify experiment discount
+ * Function (its active keys, packs and receipt tokens), reading the same compact config the
+ * backend builds:
  *
  *   { "EXP…:variantId": { "on": true, "r": [ { t, v, s, p, c, rid, m, q, sq, cv, pt, co } ] } }
  *

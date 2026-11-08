@@ -29,7 +29,7 @@ under System &gt; Extensions &gt; Integrations.]]></comment>
                 <field id="shop_id" translate="label comment" type="text" sortOrder="20"
                        showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Variant Shop ID</label>
-                    <comment>Found in the Variant dashboard under Settings &gt; Install.</comment>
+                    <comment>Provided by the Variant team.</comment>
                     <backend_model>Variant\Connector\Model\Config\Backend\ShopId</backend_model>
                     <depends>
                         <field id="enabled">1</field>

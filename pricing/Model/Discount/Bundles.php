@@ -7,9 +7,9 @@ declare(strict_types=1);
 namespace Variant\Pricing\Model\Discount;
 
 /**
- * Bundle discounts — a port of the Shopify bundle discount Function's `buildBundleCandidates`
- * (apps/shopify-app/extensions/discount-function/src/bundles.ts), reading the same compact
- * config: {"bundles": {"<id>": {"t": "f"|"p", "v": number, "n": name, "i": {productId: units}}}}.
+ * Bundle discounts — a port of `buildBundleCandidates` in Variant's Shopify bundle discount
+ * Function, reading the same compact config:
+ * {"bundles": {"<id>": {"t": "f"|"p", "v": number, "n": name, "i": {productId: units}}}}.
  *
  * A bundle is added as ordinary cart items tagged with the bundle's id and a per-add instance
  * id, and every instance is priced on its own. The tags survive whatever the shopper does to an
