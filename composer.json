@@ -3,6 +3,25 @@
   "description": "Variant for Magento Open Source / Adobe Commerce: loads Variant's storefront runtime (Variant_Connector) and applies Variant's experiment discounts, price tests and bundles in Magento's own cart (Variant_Pricing).",
   "type": "magento2-module",
   "license": "proprietary",
+  "keywords": [
+    "magento",
+    "magento2",
+    "adobe-commerce",
+    "ab-testing",
+    "experiments",
+    "variant"
+  ],
+  "homepage": "https://variantnow.com",
+  "authors": [
+    {
+      "name": "Variant",
+      "email": "support@variantnow.com"
+    }
+  ],
+  "support": {
+    "email": "support@variantnow.com",
+    "docs": "https://github.com/VariantNow/magento-extension/blob/main/INSTALL.md"
+  },
   "require": {
     "php": "~8.1.0||~8.2.0||~8.3.0||~8.4.0",
     "magento/framework": "^103.0.6",
