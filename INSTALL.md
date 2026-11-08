@@ -12,7 +12,7 @@ The package is on [Packagist](https://packagist.org/packages/variant/magento-ext
 From the Magento root:
 
 ```bash
-composer require variant/magento-extension:^0.1
+composer require variant/magento-extension:^1.0
 ```
 
 ```bash
