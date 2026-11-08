@@ -42,7 +42,9 @@ class AppendRuntimeTagsTest extends TestCase
         $escaper->method('escapeJs')->willReturnCallback(static fn ($value) => (string)$value);
         $secureRenderer = $this->createMock(SecureHtmlRenderer::class);
         $secureRenderer->method('renderTag')->willReturnCallback(
-            static fn ($tag, $attributes, $content) => '<' . $tag . '>' . $content . '</' . $tag . '>'
+            static fn ($tag, $attributes, $content) => '<' . $tag
+                . implode('', array_map(static fn ($name) => ' ' . $name, array_keys($attributes)))
+                . '>' . $content . '</' . $tag . '>'
         );
         $this->renderer = $this->createMock(Renderer::class);
         $this->plugin = new AppendRuntimeTags($this->config, $escaper, $secureRenderer);
@@ -64,9 +66,10 @@ class AppendRuntimeTagsTest extends TestCase
 
         $this->assertSame(
             self::HEAD
-            . '<script src="https://edge.variantnow.com/sdk/shops/123e4567-e89b-12d3-a456-426614174000.js"></script>'
+            . '<script data-variant-runtime src="https://edge.variantnow.com/sdk/shops/'
+            . '123e4567-e89b-12d3-a456-426614174000.js"></script>'
             . "\n"
-            . '<script src="https://edge.variantnow.com/sdk/v1/variant.js"></script>' . "\n",
+            . '<script data-variant-runtime src="https://edge.variantnow.com/sdk/v1/variant.js"></script>' . "\n",
             $this->plugin->afterRenderHeadContent($this->renderer, self::HEAD)
         );
     }
@@ -79,10 +82,11 @@ class AppendRuntimeTagsTest extends TestCase
         $this->config->method('getDevSdkHost')->willReturn('http://localhost:3610');
 
         $this->assertSame(
-            '<script src="http://localhost:3610/sdk/shops/a.js"></script>' . "\n"
-            . '<script>window.__VARIANT_CONFIG&&(window.__VARIANT_CONFIG.hosts={sdk:"http://localhost:3610"});'
+            '<script data-variant-runtime src="http://localhost:3610/sdk/shops/a.js"></script>' . "\n"
+            . '<script data-variant-runtime>'
+            . 'window.__VARIANT_CONFIG&&(window.__VARIANT_CONFIG.hosts={sdk:"http://localhost:3610"});'
             . '</script>' . "\n"
-            . '<script src="http://localhost:3610/variant.js"></script>' . "\n",
+            . '<script data-variant-runtime src="http://localhost:3610/variant.js"></script>' . "\n",
             $this->plugin->afterRenderHeadContent($this->renderer, '')
         );
     }

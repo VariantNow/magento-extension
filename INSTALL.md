@@ -17,10 +17,14 @@ ssh-keygen -t ed25519 -N "" -C "variant-magento-<store>" -f ~/.ssh/variant_magen
 cat ~/.ssh/variant_magento.pub
 ```
 
-Variant adds it as a read-only key on `github.com/VariantNow/magento-extension`. Then let Composer's git use it:
+Variant adds it as a read-only key on `github.com/VariantNow/magento-extension`. Then let Composer's git use it, and trust GitHub's host key (Composer cannot answer SSH's first-connection prompt):
 
 ```bash
 git config --global core.sshCommand "ssh -i ~/.ssh/variant_magento -o IdentitiesOnly=yes"
+```
+
+```bash
+ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts
 ```
 
 ## 2. Install

@@ -18,9 +18,14 @@ use Variant\Connector\Model\Config;
  * Both tags are parser-blocking on purpose (no async, no defer): the engine buckets
  * the visitor and applies redirect and DOM tests before first paint, which is what
  * keeps the control page from flashing. See storefront-sdk/README-bundle.md.
+ *
+ * Every tag carries `data-variant-runtime`, by which KeepRuntimeTagsInHead finds them again
+ * when Magento's "Move JS code to the bottom of the page" has moved them.
  */
 class AppendRuntimeTags
 {
+    public const MARKER = 'data-variant-runtime';
+
     /**
      * @param Config $config
      * @param Escaper $escaper
@@ -48,9 +53,11 @@ class AppendRuntimeTags
         }
 
         return $result
-            . '<script src="' . $this->escaper->escapeUrl($this->config->getShopConfigUrl()) . '"></script>' . "\n"
+            . '<script ' . self::MARKER . ' src="'
+            . $this->escaper->escapeUrl($this->config->getShopConfigUrl()) . '"></script>' . "\n"
             . $this->devHostsTag()
-            . '<script src="' . $this->escaper->escapeUrl($this->config->getEngineUrl()) . '"></script>' . "\n";
+            . '<script ' . self::MARKER . ' src="'
+            . $this->escaper->escapeUrl($this->config->getEngineUrl()) . '"></script>' . "\n";
     }
 
     /**
@@ -69,6 +76,6 @@ class AppendRuntimeTags
         }
         $script = 'window.__VARIANT_CONFIG&&(window.__VARIANT_CONFIG.hosts={sdk:"'
             . $this->escaper->escapeJs($host) . '"});';
-        return $this->secureRenderer->renderTag('script', [], $script, false) . "\n";
+        return $this->secureRenderer->renderTag('script', [self::MARKER => ''], $script, false) . "\n";
     }
 }
