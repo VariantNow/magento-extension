@@ -10,6 +10,8 @@
         <variant>
             <general>
                 <enabled>0</enabled>
+                <!-- Set by Variant from the shop's "Script loading" setting (LoadingModeInterface). -->
+                <loading_mode>blocking</loading_mode>
             </general>
             <advanced>
                 <!-- Production serves variant.js and every shop's config from Cloudflare,

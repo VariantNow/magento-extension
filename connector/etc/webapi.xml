@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Variant. All rights reserved.
+ */
+-->
+<!-- Magento_Backend::store is already granted to the Variant integration (integration.xml), so
+     a connected store needs no reauthorization for these. -->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route url="/V1/variant/loading-mode" method="PUT">
+        <service class="Variant\Connector\Api\LoadingModeInterface" method="save"/>
+        <resources>
+            <resource ref="Magento_Backend::store"/>
+        </resources>
+    </route>
+    <route url="/V1/variant/loading-mode" method="GET">
+        <service class="Variant\Connector\Api\LoadingModeInterface" method="get"/>
+        <resources>
+            <resource ref="Magento_Backend::store"/>
+        </resources>
+    </route>
+</routes>

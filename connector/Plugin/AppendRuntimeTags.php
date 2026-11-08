@@ -16,9 +16,12 @@ use Variant\Connector\Model\PageContext;
  * Writes Variant's two runtime tags right after the page's meta and title, ahead of
  * RequireJS and every stylesheet, without depending on the theme's layout.
  *
- * Both tags are parser-blocking on purpose (no async, no defer): the engine buckets
- * the visitor and applies redirect and DOM tests before first paint, which is what
- * keeps the control page from flashing.
+ * By default both tags are parser-blocking (no async, no defer): the engine buckets the
+ * visitor and applies redirect and DOM tests before first paint, which is what keeps the
+ * control page from flashing. A shop whose "Script loading" is Async (Config::isAsync) gets
+ * both tags async, so the page never waits for Variant: as on Shopify, whichever of the two
+ * arrives first waits for the other (the config calls __VARIANT_BOOT, which the engine parks),
+ * and the engine then loads the runner async too.
  *
  * Every tag carries `data-variant-runtime`, by which KeepRuntimeTagsInHead finds them again
  * when Magento's "Move JS code to the bottom of the page" has moved them. The config tag also
@@ -56,11 +59,12 @@ class AppendRuntimeTags
             return (string)$result;
         }
 
+        $loading = $this->config->isAsync() ? ' async fetchpriority="high"' : '';
         return $result
-            . '<script ' . self::MARKER . $this->pageAttributes() . ' src="'
+            . '<script ' . self::MARKER . $this->pageAttributes() . $loading . ' src="'
             . $this->escaper->escapeUrl($this->config->getShopConfigUrl()) . '"></script>' . "\n"
             . $this->devHostsTag()
-            . '<script ' . self::MARKER . ' src="'
+            . '<script ' . self::MARKER . $loading . ' src="'
             . $this->escaper->escapeUrl($this->config->getEngineUrl()) . '"></script>' . "\n";
     }
 
@@ -81,8 +85,9 @@ class AppendRuntimeTags
     /**
      * On a development SDK, point the engine at it for its runner too; nothing on production.
      *
-     * Runs between the two tags: the config has just set window.__VARIANT_CONFIG, and the engine
-     * reads its hosts when it starts.
+     * Runs between the two tags. A blocking config has already set window.__VARIANT_CONFIG; an
+     * async one usually has not, so the hosts are added as the config assigns itself. Either
+     * way the engine sees them when it starts.
      *
      * @return string
      */
@@ -92,8 +97,9 @@ class AppendRuntimeTags
         if ($host === null) {
             return '';
         }
-        $script = 'window.__VARIANT_CONFIG&&(window.__VARIANT_CONFIG.hosts={sdk:"'
-            . $this->escaper->escapeJs($host) . '"});';
+        $script = '(function(h){var w=window,c=w.__VARIANT_CONFIG;if(c){c.hosts=h;return}'
+            . 'Object.defineProperty(w,"__VARIANT_CONFIG",{configurable:true,get:function(){return c},'
+            . 'set:function(v){c=v;if(v)v.hosts=h}})})({sdk:"' . $this->escaper->escapeJs($host) . '"});';
         return $this->secureRenderer->renderTag('script', [self::MARKER => ''], $script, false) . "\n";
     }
 }

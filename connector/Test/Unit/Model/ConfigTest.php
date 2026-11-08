@@ -91,4 +91,12 @@ class ConfigTest extends TestCase
         $this->assertTrue($config->isEnabled());
         $this->assertSame(self::SHOP_ID, $config->getShopId());
     }
+
+    public function testOnlyAsyncIsAsync(): void
+    {
+        $this->assertTrue($this->config([Config::XML_PATH_LOADING_MODE => 'async'])->isAsync());
+        $this->assertFalse($this->config([Config::XML_PATH_LOADING_MODE => 'blocking'])->isAsync());
+        $this->assertFalse($this->config([Config::XML_PATH_LOADING_MODE => 'turbo'])->isAsync());
+        $this->assertFalse($this->config([])->isAsync());
+    }
 }

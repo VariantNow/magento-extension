@@ -17,6 +17,9 @@ class Config
     public const XML_PATH_ENABLED = 'variant/general/enabled';
     public const XML_PATH_SHOP_ID = 'variant/general/shop_id';
     public const XML_PATH_FILES_HOST = 'variant/advanced/files_host';
+    public const XML_PATH_LOADING_MODE = 'variant/general/loading_mode';
+    public const LOADING_MODE_BLOCKING = 'blocking';
+    public const LOADING_MODE_ASYNC = 'async';
 
     /**
      * Variant's files-only CDNs, which serve the engine under /sdk/v1/.
@@ -56,6 +59,24 @@ class Config
             ScopeInterface::SCOPE_STORE,
             $storeId
         ));
+    }
+
+    /**
+     * Whether the runtime tags load async.
+     *
+     * The shop's "Script loading" setting, which Variant writes through LoadingModeInterface.
+     * Missing or anything else means blocking.
+     *
+     * @param int|null $storeId
+     * @return bool
+     */
+    public function isAsync(?int $storeId = null): bool
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_PATH_LOADING_MODE,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) === self::LOADING_MODE_ASYNC;
     }
 
     /**

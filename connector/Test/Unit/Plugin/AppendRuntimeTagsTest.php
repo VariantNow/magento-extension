@@ -94,7 +94,9 @@ class AppendRuntimeTagsTest extends TestCase
         $this->assertSame(
             '<script data-variant-runtime src="http://localhost:3610/sdk/shops/a.js"></script>' . "\n"
             . '<script data-variant-runtime>'
-            . 'window.__VARIANT_CONFIG&&(window.__VARIANT_CONFIG.hosts={sdk:"http://localhost:3610"});'
+            . '(function(h){var w=window,c=w.__VARIANT_CONFIG;if(c){c.hosts=h;return}'
+            . 'Object.defineProperty(w,"__VARIANT_CONFIG",{configurable:true,get:function(){return c},'
+            . 'set:function(v){c=v;if(v)v.hosts=h}})})({sdk:"http://localhost:3610"});'
             . '</script>' . "\n"
             . '<script data-variant-runtime src="http://localhost:3610/variant.js"></script>' . "\n",
             $this->plugin->afterRenderHeadContent($this->renderer, '')
@@ -111,6 +113,38 @@ class AppendRuntimeTagsTest extends TestCase
 
         $this->assertStringNotContainsString('async', $html);
         $this->assertStringNotContainsString('defer', $html);
+    }
+
+    public function testAsyncShopsGetBothTagsAsync(): void
+    {
+        $this->config->method('isEnabled')->willReturn(true);
+        $this->config->method('isAsync')->willReturn(true);
+        $this->config->method('getShopConfigUrl')->willReturn('https://edge.variantnow.com/sdk/shops/a.js');
+        $this->config->method('getEngineUrl')->willReturn('https://edge.variantnow.com/sdk/v1/variant.js');
+        $this->pageContext->method('attributes')->willReturn(['data-variant-page-type' => 'home']);
+
+        $this->assertSame(
+            '<script data-variant-runtime data-variant-page-type="home" async fetchpriority="high"'
+            . ' src="https://edge.variantnow.com/sdk/shops/a.js"></script>' . "\n"
+            . '<script data-variant-runtime async fetchpriority="high"'
+            . ' src="https://edge.variantnow.com/sdk/v1/variant.js"></script>' . "\n",
+            $this->plugin->afterRenderHeadContent($this->renderer, '')
+        );
+    }
+
+    public function testDevHostsReachAnAsyncConfigThatArrivesLater(): void
+    {
+        $this->config->method('isEnabled')->willReturn(true);
+        $this->config->method('isAsync')->willReturn(true);
+        $this->config->method('getShopConfigUrl')->willReturn('http://localhost:3610/sdk/shops/a.js');
+        $this->config->method('getEngineUrl')->willReturn('http://localhost:3610/variant.js');
+        $this->config->method('getDevSdkHost')->willReturn('http://localhost:3610');
+
+        $html = $this->plugin->afterRenderHeadContent($this->renderer, '');
+
+        // Set as the config assigns itself, not only when it is already there.
+        $this->assertStringContainsString('Object.defineProperty(w,"__VARIANT_CONFIG"', $html);
+        $this->assertSame(2, substr_count($html, ' async fetchpriority="high"'));
     }
 
     public function testEscapesTheUrlsIntoTheAttribute(): void
