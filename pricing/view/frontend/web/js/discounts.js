@@ -33,6 +33,11 @@
    * Add a product through Magento's regular add-to-cart, optionally carrying a recommendation
    * receipt (`variant_rec_token`) that a recipe-scoped discount verifies.
    *
+   * Resolves false when Magento refused the add. Its AJAX add-to-cart answers 200 either way
+   * (out of stock, missing options, a cart rule): an add answers `[]`, a refusal
+   * `{"backUrl": <the page it came from>}`, leaving the reason in Magento's messages for the
+   * page to show. A `backUrl` to the cart is an add on a store set to redirect to the cart.
+   *
    * @param {number|string} productId
    * @param {{qty?: number, recToken?: string, superAttribute?: Object}} [options]
    * @return {Promise<boolean>}
@@ -50,14 +55,27 @@
       body.set('super_attribute[' + attributeId + ']', String(opts.superAttribute[attributeId]));
     });
     // BASE_URL carries a store code or subfolder; a root-relative path would miss them.
-    return fetch((window.BASE_URL || '/') + 'checkout/cart/add/', {
-      method: 'POST',
-      body: body,
-      credentials: 'same-origin',
-      headers: { 'X-Requested-With': 'XMLHttpRequest' },
-    }).then(function (response) {
-      refreshCart();
-      return response.ok;
-    });
+    var base = window.BASE_URL || '/';
+    var ajax = { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } };
+    return fetch(base + 'checkout/cart/add/', Object.assign({ method: 'POST', body: body }, ajax))
+      .then(function (response) {
+        if (!response.ok) {
+          return false;
+        }
+        return response
+          .json()
+          .then(function (result) {
+            var backUrl = result && result.backUrl;
+            return !backUrl || /\/checkout\/cart\/?(\?|#|$)/.test(String(backUrl));
+          })
+          .catch(function () {
+            // The add answered; only its verdict could not be read.
+            return true;
+          });
+      })
+      .then(function (added) {
+        refreshCart();
+        return added;
+      });
   };
 })();
