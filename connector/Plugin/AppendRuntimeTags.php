@@ -10,6 +10,7 @@ use Magento\Framework\Escaper;
 use Magento\Framework\View\Helper\SecureHtmlRenderer;
 use Magento\Framework\View\Page\Config\Renderer;
 use Variant\Connector\Model\Config;
+use Variant\Connector\Model\PageContext;
 
 /**
  * Writes Variant's two runtime tags right after the page's meta and title, ahead of
@@ -20,7 +21,8 @@ use Variant\Connector\Model\Config;
  * keeps the control page from flashing. See storefront-sdk/README-bundle.md.
  *
  * Every tag carries `data-variant-runtime`, by which KeepRuntimeTagsInHead finds them again
- * when Magento's "Move JS code to the bottom of the page" has moved them.
+ * when Magento's "Move JS code to the bottom of the page" has moved them. The config tag also
+ * says what the page is (PageContext), which the engine passes on to experiment targeting.
  */
 class AppendRuntimeTags
 {
@@ -30,11 +32,13 @@ class AppendRuntimeTags
      * @param Config $config
      * @param Escaper $escaper
      * @param SecureHtmlRenderer $secureRenderer
+     * @param PageContext $pageContext
      */
     public function __construct(
         private readonly Config $config,
         private readonly Escaper $escaper,
-        private readonly SecureHtmlRenderer $secureRenderer
+        private readonly SecureHtmlRenderer $secureRenderer,
+        private readonly PageContext $pageContext
     ) {
     }
 
@@ -53,11 +57,25 @@ class AppendRuntimeTags
         }
 
         return $result
-            . '<script ' . self::MARKER . ' src="'
+            . '<script ' . self::MARKER . $this->pageAttributes() . ' src="'
             . $this->escaper->escapeUrl($this->config->getShopConfigUrl()) . '"></script>' . "\n"
             . $this->devHostsTag()
             . '<script ' . self::MARKER . ' src="'
             . $this->escaper->escapeUrl($this->config->getEngineUrl()) . '"></script>' . "\n";
+    }
+
+    /**
+     * The page's type, product or category, and categories, as attributes of the config tag.
+     *
+     * @return string
+     */
+    private function pageAttributes(): string
+    {
+        $html = '';
+        foreach ($this->pageContext->attributes() as $name => $value) {
+            $html .= ' ' . $name . '="' . $this->escaper->escapeHtmlAttr($value) . '"';
+        }
+        return $html;
     }
 
     /**

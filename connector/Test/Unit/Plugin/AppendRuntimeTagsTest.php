@@ -11,6 +11,7 @@ use Magento\Framework\View\Helper\SecureHtmlRenderer;
 use Magento\Framework\View\Page\Config\Renderer;
 use PHPUnit\Framework\TestCase;
 use Variant\Connector\Model\Config;
+use Variant\Connector\Model\PageContext;
 use Variant\Connector\Plugin\AppendRuntimeTags;
 
 class AppendRuntimeTagsTest extends TestCase
@@ -32,6 +33,11 @@ class AppendRuntimeTagsTest extends TestCase
      */
     private $renderer;
 
+    /**
+     * @var PageContext|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $pageContext;
+
     protected function setUp(): void
     {
         $this->config = $this->createMock(Config::class);
@@ -40,6 +46,9 @@ class AppendRuntimeTagsTest extends TestCase
             static fn ($value) => htmlspecialchars((string)$value, ENT_QUOTES)
         );
         $escaper->method('escapeJs')->willReturnCallback(static fn ($value) => (string)$value);
+        $escaper->method('escapeHtmlAttr')->willReturnCallback(
+            static fn ($value) => htmlspecialchars((string)$value, ENT_QUOTES)
+        );
         $secureRenderer = $this->createMock(SecureHtmlRenderer::class);
         $secureRenderer->method('renderTag')->willReturnCallback(
             static fn ($tag, $attributes, $content) => '<' . $tag
@@ -47,7 +56,8 @@ class AppendRuntimeTagsTest extends TestCase
                 . '>' . $content . '</' . $tag . '>'
         );
         $this->renderer = $this->createMock(Renderer::class);
-        $this->plugin = new AppendRuntimeTags($this->config, $escaper, $secureRenderer);
+        $this->pageContext = $this->createMock(PageContext::class);
+        $this->plugin = new AppendRuntimeTags($this->config, $escaper, $secureRenderer, $this->pageContext);
     }
 
     public function testLeavesTheHeadAloneWhenDisabled(): void
@@ -113,5 +123,29 @@ class AppendRuntimeTagsTest extends TestCase
             'src="https://edge.variantnow.com/sdk/shops/&quot;x&quot;.js"',
             $this->plugin->afterRenderHeadContent($this->renderer, '')
         );
+    }
+
+    public function testLabelsTheConfigTagWithThePage(): void
+    {
+        $this->config->method('isEnabled')->willReturn(true);
+        $this->config->method('getShopConfigUrl')->willReturn('https://edge.variantnow.com/sdk/shops/a.js');
+        $this->config->method('getEngineUrl')->willReturn('https://edge.variantnow.com/sdk/v1/variant.js');
+        $this->pageContext->method('attributes')->willReturn([
+            'data-variant-page-type' => 'product',
+            'data-variant-page-handle' => 'tee "x"',
+            'data-variant-product-collections' => 'women,tops-women',
+        ]);
+
+        $html = $this->plugin->afterRenderHeadContent($this->renderer, '');
+
+        $this->assertStringStartsWith(
+            '<script data-variant-runtime data-variant-page-type="product"'
+            . ' data-variant-page-handle="tee &quot;x&quot;"'
+            . ' data-variant-product-collections="women,tops-women"'
+            . ' src="https://edge.variantnow.com/sdk/shops/a.js"></script>',
+            $html
+        );
+        // Only the config tag carries the page.
+        $this->assertSame(1, substr_count($html, 'data-variant-page-type'));
     }
 }
