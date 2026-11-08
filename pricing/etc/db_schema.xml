@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Variant. All rights reserved.
+ */
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="quote">
+        <column xsi:type="varchar" name="variant_discount_keys" nullable="true" length="1024"
+                comment="Variant experiment arms the shopper activated, comma-separated"/>
+        <column xsi:type="varchar" name="variant_price_keys" nullable="true" length="1024"
+                comment="Variant price-test arms the shopper activated, comma-separated"/>
+    </table>
+    <table name="sales_order">
+        <column xsi:type="varchar" name="variant_discount_keys" nullable="true" length="1024"
+                comment="Variant experiment arms active when the order was placed"/>
+        <column xsi:type="varchar" name="variant_price_keys" nullable="true" length="1024"
+                comment="Variant price-test arms active when the order was placed"/>
+    </table>
+    <table name="quote_item">
+        <column xsi:type="varchar" name="variant_rec_token" nullable="true" length="255"
+                comment="Variant recommendation or checkout-card receipt"/>
+        <column xsi:type="varchar" name="variant_price_key" nullable="true" length="100"
+                comment="Variant price-test arm that priced the item"/>
+    </table>
+    <table name="sales_order_item">
+        <column xsi:type="varchar" name="variant_rec_token" nullable="true" length="255"
+                comment="Variant recommendation or checkout-card receipt"/>
+        <column xsi:type="varchar" name="variant_price_key" nullable="true" length="100"
+                comment="Variant price-test arm that priced the item"/>
+    </table>
+</schema>

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Variant. All rights reserved.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Variant\Pricing\Api\DiscountConfigInterface" type="Variant\Pricing\Model\DiscountConfig"/>
+    <preference for="Variant\Pricing\Api\BundleConfigInterface" type="Variant\Pricing\Model\BundleConfig"/>
+    <preference for="Variant\Pricing\Api\PriceTestConfigInterface" type="Variant\Pricing\Model\PriceTestConfig"/>
+    <!-- Global, not frontend only: Luma's checkout recollects totals over REST, and admin orders do too. -->
+    <type name="Magento\SalesRule\Model\Quote\Discount">
+        <plugin name="variant_pricing_experiment_discounts" type="Variant\Pricing\Plugin\ApplyExperimentDiscounts"/>
+    </type>
+    <type name="Magento\SalesRule\Model\Quote\Address\Total\ShippingDiscount">
+        <plugin name="variant_pricing_keep_description" type="Variant\Pricing\Plugin\KeepDiscountDescription"/>
+    </type>
+</config>

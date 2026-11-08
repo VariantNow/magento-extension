@@ -1,0 +1,29 @@
+{
+  "name": "variant/magento-extension",
+  "description": "Variant for Magento Open Source / Adobe Commerce: loads Variant's storefront runtime (Variant_Connector) and applies Variant's experiment discounts, price tests and bundles in Magento's own cart (Variant_Pricing).",
+  "type": "magento2-module",
+  "license": "proprietary",
+  "require": {
+    "php": "~8.1.0||~8.2.0||~8.3.0||~8.4.0",
+    "magento/framework": "^103.0.6",
+    "magento/module-catalog": "^104.0",
+    "magento/module-checkout": "^100.4",
+    "magento/module-config": "^101.2",
+    "magento/module-csp": "^100.4",
+    "magento/module-integration": "^100.4",
+    "magento/module-quote": "^101.2",
+    "magento/module-sales": "^103.0",
+    "magento/module-sales-rule": "^101.2",
+    "magento/module-store": "^101.1"
+  },
+  "autoload": {
+    "files": [
+      "connector/registration.php",
+      "pricing/registration.php"
+    ],
+    "psr-4": {
+      "Variant\\Connector\\": "connector/",
+      "Variant\\Pricing\\": "pricing/"
+    }
+  }
+}

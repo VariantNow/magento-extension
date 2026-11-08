@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Variant. All rights reserved.
+ */
+-->
+<!-- Every host the Variant runtime loads from or talks to. Stores that enforce their
+     Content Security Policy beyond checkout would otherwise block it entirely. -->
+<csp_whitelist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Csp:etc/csp_whitelist.xsd">
+    <policies>
+        <policy id="script-src">
+            <values>
+                <!-- variant.js, the runner and each shop's config and features -->
+                <value id="variant-edge" type="host">edge.variantnow.com</value>
+                <value id="variant-cdn" type="host">cdn.variantnow.com</value>
+                <value id="variant-sdk" type="host">sdk.variantnow.com</value>
+                <!-- the analytics pixel -->
+                <value id="variant-pixel" type="host">storage.googleapis.com/variant_scripts/</value>
+            </values>
+        </policy>
+        <policy id="connect-src">
+            <values>
+                <value id="variant-edge" type="host">edge.variantnow.com</value>
+                <value id="variant-sdk" type="host">sdk.variantnow.com</value>
+                <!-- recommendations, segments and other storefront data -->
+                <value id="variant-brain" type="host">brain.variantnow.com</value>
+                <!-- analytics events -->
+                <value id="variant-analytics" type="host">ding.variantnow.com</value>
+            </values>
+        </policy>
+        <policy id="img-src">
+            <values>
+                <!-- images and media used by tests and experiences -->
+                <value id="variant-cdn" type="host">cdn.variantnow.com</value>
+                <value id="variant-assets" type="host">storage.googleapis.com/variant_storefront_assets/</value>
+            </values>
+        </policy>
+        <policy id="media-src">
+            <values>
+                <value id="variant-cdn" type="host">cdn.variantnow.com</value>
+                <value id="variant-assets" type="host">storage.googleapis.com/variant_storefront_assets/</value>
+            </values>
+        </policy>
+        <policy id="frame-src">
+            <values>
+                <!-- the storefront chat widget -->
+                <value id="variant-chat" type="host">chat.variantnow.com</value>
+            </values>
+        </policy>
+    </policies>
+</csp_whitelist>

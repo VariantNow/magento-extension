@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Variant. All rights reserved.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="variant" translate="label" sortOrder="900">
+            <label>Variant</label>
+        </tab>
+        <section id="variant" translate="label" sortOrder="10"
+                 showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Variant</label>
+            <tab>variant</tab>
+            <resource>Variant_Connector::config</resource>
+            <group id="general" translate="label comment" sortOrder="10"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Storefront</label>
+                <comment><![CDATA[Loads Variant's A/B testing runtime at the top of every storefront page.
+To let Variant read your catalog and orders, activate the <strong>Variant</strong> integration
+under System &gt; Extensions &gt; Integrations.]]></comment>
+                <field id="enabled" translate="label" type="select" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Enable Variant</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="shop_id" translate="label comment" type="text" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Variant Shop ID</label>
+                    <comment>Found in the Variant dashboard under Settings &gt; Install.</comment>
+                    <backend_model>Variant\Connector\Model\Config\Backend\ShopId</backend_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="advanced" translate="label" sortOrder="20"
+                   showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Advanced</label>
+                <field id="files_host" translate="label comment" type="text" sortOrder="10"
+                       showInDefault="1" canRestore="1">
+                    <label>Variant Files Host</label>
+                    <comment>Change only when Variant support asks you to.</comment>
+                    <backend_model>Variant\Connector\Model\Config\Backend\FilesHost</backend_model>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

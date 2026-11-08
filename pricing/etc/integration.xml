@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Variant. All rights reserved.
+ */
+-->
+<!-- Adds publishing discount experiments to the Variant integration Variant_Connector declares;
+     Magento merges integrations by name. Installing this module resets that integration once:
+     the merchant clicks Reauthorize and the handshake refreshes Variant's token. -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Integration:etc/integration/integration.xsd">
+    <integration name="Variant">
+        <resources>
+            <resource name="Variant_Pricing::discounts"/>
+        </resources>
+    </integration>
+</config>

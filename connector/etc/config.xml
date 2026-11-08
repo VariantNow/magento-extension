@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Variant. All rights reserved.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <variant>
+            <general>
+                <enabled>0</enabled>
+            </general>
+            <advanced>
+                <!-- Production serves variant.js and every shop's config from Cloudflare,
+                     the same host the Shopify loader uses. -->
+                <files_host>https://edge.variantnow.com</files_host>
+            </advanced>
+        </variant>
+    </default>
+</config>

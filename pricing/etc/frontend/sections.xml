@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Variant. All rights reserved.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Customer:etc/sections.xsd">
+    <!-- A bundle add changes the cart, so the minicart's cached section is refreshed, as after Add to Cart. -->
+    <action name="variant/bundle/add">
+        <section name="cart"/>
+    </action>
+</config>

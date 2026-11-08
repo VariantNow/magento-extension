@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Variant. All rights reserved.
+ */
+-->
+<!-- Registered on setup:upgrade as an inactive integration. When the merchant clicks Activate
+     under System > Extensions > Integrations and approves exactly these resources:
+       1. Magento posts the consumer credentials to endpoint_url, and Variant's backend
+          exchanges them for an access token right away (Magento marks it Active then).
+       2. Magento opens identity_link_url in a popup, where the signed-in merchant picks the
+          Variant shop to link the store to.
+     Magento only runs this handshake when both URLs are set; with either missing it falls
+     back to showing the tokens for the merchant to copy.
+     Magento adds each resource's parents and denies everything not listed.
+     Changing anything here (a URL, a resource, the email) makes setup:upgrade delete and
+     recreate the integration, which revokes its token until the merchant reauthorizes it.
+     To test against a local Variant stack, change the two URLs in the store's `integration`
+     table instead of here. -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Integration:etc/integration/integration.xsd">
+    <integration name="Variant">
+        <!-- Magento's converter reads this unconditionally even though the schema marks it optional. -->
+        <email>support@variantnow.com</email>
+        <endpoint_url>https://backend.variantnow.com/magento/oauth/callback</endpoint_url>
+        <identity_link_url>https://app.variantnow.com/auth/magento</identity_link_url>
+        <resources>
+            <!-- products, configurable children, stock -->
+            <resource name="Magento_Catalog::products"/>
+            <!-- the category tree -->
+            <resource name="Magento_Catalog::categories"/>
+            <!-- option labels (Color: Black) for configurable products -->
+            <resource name="Magento_Catalog::attributes_attributes"/>
+            <!-- store views, base and media URLs, currency -->
+            <resource name="Magento_Backend::store"/>
+            <!-- orders, for matching test results to revenue -->
+            <resource name="Magento_Sales::actions_view"/>
+        </resources>
+    </integration>
+</config>

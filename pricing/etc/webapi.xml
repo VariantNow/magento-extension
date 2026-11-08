@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Variant. All rights reserved.
+ */
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route url="/V1/variant/discount-experiments/:experimentId" method="PUT">
+        <service class="Variant\Pricing\Api\DiscountConfigInterface" method="saveExperiment"/>
+        <resources>
+            <resource ref="Variant_Pricing::discounts"/>
+        </resources>
+    </route>
+    <route url="/V1/variant/discount-experiments/:experimentId" method="DELETE">
+        <service class="Variant\Pricing\Api\DiscountConfigInterface" method="deleteExperiment"/>
+        <resources>
+            <resource ref="Variant_Pricing::discounts"/>
+        </resources>
+    </route>
+    <route url="/V1/variant/discount-experiments" method="GET">
+        <service class="Variant\Pricing\Api\DiscountConfigInterface" method="getAll"/>
+        <resources>
+            <resource ref="Variant_Pricing::discounts"/>
+        </resources>
+    </route>
+    <route url="/V1/variant/discount-receipt-keys" method="PUT">
+        <service class="Variant\Pricing\Api\DiscountConfigInterface" method="saveReceiptKeys"/>
+        <resources>
+            <resource ref="Variant_Pricing::discounts"/>
+        </resources>
+    </route>
+    <route url="/V1/variant/price-tests/:experimentId" method="PUT">
+        <service class="Variant\Pricing\Api\PriceTestConfigInterface" method="saveExperiment"/>
+        <resources>
+            <resource ref="Variant_Pricing::discounts"/>
+        </resources>
+    </route>
+    <route url="/V1/variant/price-tests/:experimentId" method="DELETE">
+        <service class="Variant\Pricing\Api\PriceTestConfigInterface" method="deleteExperiment"/>
+        <resources>
+            <resource ref="Variant_Pricing::discounts"/>
+        </resources>
+    </route>
+    <route url="/V1/variant/price-tests" method="GET">
+        <service class="Variant\Pricing\Api\PriceTestConfigInterface" method="getAll"/>
+        <resources>
+            <resource ref="Variant_Pricing::discounts"/>
+        </resources>
+    </route>
+    <route url="/V1/variant/bundles" method="PUT">
+        <service class="Variant\Pricing\Api\BundleConfigInterface" method="save"/>
+        <resources>
+            <resource ref="Variant_Pricing::discounts"/>
+        </resources>
+    </route>
+    <route url="/V1/variant/bundles" method="GET">
+        <service class="Variant\Pricing\Api\BundleConfigInterface" method="get"/>
+        <resources>
+            <resource ref="Variant_Pricing::discounts"/>
+        </resources>
+    </route>
+</routes>

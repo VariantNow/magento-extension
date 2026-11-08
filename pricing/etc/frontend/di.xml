@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Variant. All rights reserved.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Storefront adds only: a receipt-carrying add never merges into an existing cart item. -->
+    <type name="Magento\Checkout\Model\Cart">
+        <plugin name="variant_pricing_keep_receipt_lines_apart" type="Variant\Pricing\Plugin\KeepReceiptLinesApart"/>
+    </type>
+</config>

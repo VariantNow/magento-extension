@@ -1,0 +1,26 @@
+{
+  "quote": {
+    "column": {
+      "variant_discount_keys": true,
+      "variant_price_keys": true
+    }
+  },
+  "sales_order": {
+    "column": {
+      "variant_discount_keys": true,
+      "variant_price_keys": true
+    }
+  },
+  "quote_item": {
+    "column": {
+      "variant_rec_token": true,
+      "variant_price_key": true
+    }
+  },
+  "sales_order_item": {
+    "column": {
+      "variant_rec_token": true,
+      "variant_price_key": true
+    }
+  }
+}
