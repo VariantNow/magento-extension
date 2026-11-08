@@ -9,6 +9,13 @@
     <acl>
         <resources>
             <resource id="Magento_Backend::admin">
+                <!-- The Variant integration's own REST routes. New routes in Variant's modules go
+                     under this resource, which the integration already holds, so adding one never
+                     changes integration.xml (which would reset the integration's token). -->
+                <resource id="Variant_Connector::api"
+                          title="Variant API"
+                          translate="title"
+                          sortOrder="910"/>
                 <resource id="Magento_Backend::stores">
                     <resource id="Magento_Backend::stores_settings">
                         <resource id="Magento_Config::config">

@@ -35,6 +35,17 @@
             <resource name="Magento_Backend::store"/>
             <!-- orders, for matching test results to revenue -->
             <resource name="Magento_Sales::actions_view"/>
+            <!-- credit memos: refunds, for net revenue in test results -->
+            <resource name="Magento_Sales::sales_creditmemo"/>
+            <!-- customers: new vs returning, customer-level revenue -->
+            <resource name="Magento_Customer::customer"/>
+            <!-- customer groups, for targeting and for prices that differ by group -->
+            <resource name="Magento_Customer::group"/>
+            <!-- the store's cart price rules and coupons, next to Variant's own discounts -->
+            <resource name="Magento_SalesRule::quote"/>
+            <!-- every REST route Variant's own modules add from now on (acl.xml), so a new
+                 extension feature never has to change this list and reset the token -->
+            <resource name="Variant_Connector::api"/>
         </resources>
     </integration>
 </config>
