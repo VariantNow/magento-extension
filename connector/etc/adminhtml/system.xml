@@ -37,13 +37,19 @@ under System &gt; Extensions &gt; Integrations.]]></comment>
                 </field>
             </group>
             <group id="advanced" translate="label" sortOrder="20"
-                   showInDefault="1" showInWebsite="0" showInStore="0">
+                   showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Advanced</label>
                 <field id="files_host" translate="label comment" type="text" sortOrder="10"
                        showInDefault="1" canRestore="1">
                     <label>Variant Files Host</label>
                     <comment>Change only when Variant support asks you to.</comment>
                     <backend_model>Variant\Connector\Model\Config\Backend\FilesHost</backend_model>
+                </field>
+                <field id="onetrust_category" translate="label comment" type="text" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>OneTrust Analytics Category ID</label>
+                    <comment>For stores that use OneTrust: Variant sends analytics only once a visitor allows this category. C0002 is OneTrust's "Performance cookies"; change it only if your OneTrust uses another ID for analytics.</comment>
+                    <backend_model>Variant\Connector\Model\Config\Backend\OneTrustCategory</backend_model>
                 </field>
             </group>
         </section>

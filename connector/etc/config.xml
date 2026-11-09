@@ -17,6 +17,8 @@
                 <!-- Production serves variant.js and every shop's config from Cloudflare,
                      the same host the Shopify loader uses. -->
                 <files_host>https://edge.variantnow.com</files_host>
+                <!-- OneTrust's "Performance cookies"; see Config::getOneTrustCategory(). -->
+                <onetrust_category>C0002</onetrust_category>
             </advanced>
         </variant>
     </default>

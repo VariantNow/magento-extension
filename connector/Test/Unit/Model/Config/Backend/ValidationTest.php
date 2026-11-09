@@ -10,6 +10,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 use PHPUnit\Framework\TestCase;
 use Variant\Connector\Model\Config\Backend\FilesHost;
+use Variant\Connector\Model\Config\Backend\OneTrustCategory;
 use Variant\Connector\Model\Config\Backend\ShopId;
 
 class ValidationTest extends TestCase
@@ -62,6 +63,34 @@ class ValidationTest extends TestCase
             'sdk key' => ['sdk-9oZrzNbOrX6BSzl'],
             'url' => ['https://edge.variantnow.com/sdk/shops/123e4567-e89b-12d3-a456-426614174000.js'],
             'markup' => ['123e4567-e89b-12d3-a456-426614174000"><script>'],
+        ];
+    }
+
+    public function testOneTrustCategoryIsTrimmed(): void
+    {
+        $this->assertSame('C0002', $this->save(OneTrustCategory::class, ' C0002 '));
+        $this->assertSame('SPD_BG', $this->save(OneTrustCategory::class, 'SPD_BG'));
+    }
+
+    /**
+     * @dataProvider notOneTrustCategories
+     * @param string $value
+     */
+    public function testOneTrustCategoryRejectsAnythingButAnId(string $value): void
+    {
+        $this->expectException(LocalizedException::class);
+        $this->save(OneTrustCategory::class, $value);
+    }
+
+    /**
+     * @return array
+     */
+    public static function notOneTrustCategories(): array
+    {
+        return [
+            'empty' => [''],
+            'markup' => ['C0002"><script>'],
+            'list' => ['C0002,C0003'],
         ];
     }
 

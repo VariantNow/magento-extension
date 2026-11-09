@@ -92,6 +92,19 @@ class ConfigTest extends TestCase
         $this->assertSame(self::SHOP_ID, $config->getShopId());
     }
 
+    public function testOneTrustCategoryDefaultsToPerformanceCookies(): void
+    {
+        $this->assertSame('C0002', $this->config([])->getOneTrustCategory());
+        $this->assertSame(
+            'SPD_BG',
+            $this->config([Config::XML_PATH_ONETRUST_CATEGORY => ' SPD_BG '])->getOneTrustCategory()
+        );
+        $this->assertSame(
+            'C0002',
+            $this->config([Config::XML_PATH_ONETRUST_CATEGORY => 'C0002"><script>'])->getOneTrustCategory()
+        );
+    }
+
     public function testOnlyAsyncIsAsync(): void
     {
         $this->assertTrue($this->config([Config::XML_PATH_LOADING_MODE => 'async'])->isAsync());

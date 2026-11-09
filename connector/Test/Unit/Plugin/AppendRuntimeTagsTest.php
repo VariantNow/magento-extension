@@ -11,6 +11,7 @@ use Magento\Framework\View\Helper\SecureHtmlRenderer;
 use Magento\Framework\View\Page\Config\Renderer;
 use PHPUnit\Framework\TestCase;
 use Variant\Connector\Model\Config;
+use Variant\Connector\Model\ConsentBridge;
 use Variant\Connector\Model\PageContext;
 use Variant\Connector\Plugin\AppendRuntimeTags;
 
@@ -38,6 +39,11 @@ class AppendRuntimeTagsTest extends TestCase
      */
     private $pageContext;
 
+    /**
+     * @var ConsentBridge|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $consentBridge;
+
     protected function setUp(): void
     {
         $this->config = $this->createMock(Config::class);
@@ -52,12 +58,23 @@ class AppendRuntimeTagsTest extends TestCase
         $secureRenderer = $this->createMock(SecureHtmlRenderer::class);
         $secureRenderer->method('renderTag')->willReturnCallback(
             static fn ($tag, $attributes, $content) => '<' . $tag
-                . implode('', array_map(static fn ($name) => ' ' . $name, array_keys($attributes)))
+                . implode('', array_map(
+                    static fn ($name, $value) => ' ' . $name . ($value === '' ? '' : '="' . $value . '"'),
+                    array_keys($attributes),
+                    $attributes
+                ))
                 . '>' . $content . '</' . $tag . '>'
         );
         $this->renderer = $this->createMock(Renderer::class);
         $this->pageContext = $this->createMock(PageContext::class);
-        $this->plugin = new AppendRuntimeTags($this->config, $escaper, $secureRenderer, $this->pageContext);
+        $this->consentBridge = $this->createMock(ConsentBridge::class);
+        $this->plugin = new AppendRuntimeTags(
+            $this->config,
+            $escaper,
+            $secureRenderer,
+            $this->pageContext,
+            $this->consentBridge
+        );
     }
 
     public function testLeavesTheHeadAloneWhenDisabled(): void
@@ -145,6 +162,35 @@ class AppendRuntimeTagsTest extends TestCase
         // Set as the config assigns itself, not only when it is already there.
         $this->assertStringContainsString('Object.defineProperty(w,"__VARIANT_CONFIG"', $html);
         $this->assertSame(2, substr_count($html, ' async fetchpriority="high"'));
+    }
+
+    public function testTheConsentBridgeRunsBeforeBothTags(): void
+    {
+        $this->config->method('isEnabled')->willReturn(true);
+        $this->config->method('getShopConfigUrl')->willReturn('https://edge.variantnow.com/sdk/shops/a.js');
+        $this->config->method('getEngineUrl')->willReturn('https://edge.variantnow.com/sdk/v1/variant.js');
+        $this->consentBridge->method('script')->willReturn('(function(){/*bridge*/})();');
+        $this->config->method('getOneTrustCategory')->willReturn('C0002');
+
+        $this->assertStringStartsWith(
+            self::HEAD . '<script data-variant-runtime data-onetrust-category="C0002">'
+            . '(function(){/*bridge*/})();</script>' . "\n"
+            . '<script data-variant-runtime src="https://edge.variantnow.com/sdk/shops/a.js"></script>',
+            $this->plugin->afterRenderHeadContent($this->renderer, self::HEAD)
+        );
+    }
+
+    public function testNoBridgeWhenItCannotBeRead(): void
+    {
+        $this->config->method('isEnabled')->willReturn(true);
+        $this->config->method('getShopConfigUrl')->willReturn('https://edge.variantnow.com/sdk/shops/a.js');
+        $this->config->method('getEngineUrl')->willReturn('https://edge.variantnow.com/sdk/v1/variant.js');
+        $this->consentBridge->method('script')->willReturn('');
+
+        $this->assertStringStartsWith(
+            '<script data-variant-runtime src=',
+            $this->plugin->afterRenderHeadContent($this->renderer, '')
+        );
     }
 
     public function testEscapesTheUrlsIntoTheAttribute(): void

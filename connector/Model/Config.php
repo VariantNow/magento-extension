@@ -8,6 +8,7 @@ namespace Variant\Connector\Model;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
+use Variant\Connector\Model\Config\Backend\OneTrustCategory;
 
 /**
  * Store-scoped Variant settings and the two runtime URLs derived from them.
@@ -17,6 +18,8 @@ class Config
     public const XML_PATH_ENABLED = 'variant/general/enabled';
     public const XML_PATH_SHOP_ID = 'variant/general/shop_id';
     public const XML_PATH_FILES_HOST = 'variant/advanced/files_host';
+    public const XML_PATH_ONETRUST_CATEGORY = 'variant/advanced/onetrust_category';
+    public const DEFAULT_ONETRUST_CATEGORY = 'C0002';
     public const XML_PATH_LOADING_MODE = 'variant/general/loading_mode';
     public const LOADING_MODE_BLOCKING = 'blocking';
     public const LOADING_MODE_ASYNC = 'async';
@@ -77,6 +80,26 @@ class Config
             ScopeInterface::SCOPE_STORE,
             $storeId
         ) === self::LOADING_MODE_ASYNC;
+    }
+
+    /**
+     * The OneTrust category ID the consent bridge waits for before analytics is allowed.
+     *
+     * OneTrust's "Performance cookies" (C0002) unless the store's OneTrust uses another ID.
+     *
+     * @param int|null $storeId
+     * @return string
+     */
+    public function getOneTrustCategory(?int $storeId = null): string
+    {
+        $value = trim((string)$this->scopeConfig->getValue(
+            self::XML_PATH_ONETRUST_CATEGORY,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        ));
+        return preg_match(OneTrustCategory::PATTERN, $value)
+            ? $value
+            : self::DEFAULT_ONETRUST_CATEGORY;
     }
 
     /**

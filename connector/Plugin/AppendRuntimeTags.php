@@ -10,6 +10,7 @@ use Magento\Framework\Escaper;
 use Magento\Framework\View\Helper\SecureHtmlRenderer;
 use Magento\Framework\View\Page\Config\Renderer;
 use Variant\Connector\Model\Config;
+use Variant\Connector\Model\ConsentBridge;
 use Variant\Connector\Model\PageContext;
 
 /**
@@ -22,6 +23,9 @@ use Variant\Connector\Model\PageContext;
  * both tags async, so the page never waits for Variant: as on Shopify, whichever of the two
  * arrives first waits for the other (the config calls __VARIANT_BOOT, which the engine parks),
  * and the engine then loads the runner async too.
+ *
+ * Ahead of both, an inline script tells the runtime the visitor's analytics consent from the
+ * store's consent tool (ConsentBridge); the shop's Cookie consent setting decides what it gates.
  *
  * Every tag carries `data-variant-runtime`, by which KeepRuntimeTagsInHead finds them again
  * when Magento's "Move JS code to the bottom of the page" has moved them. The config tag also
@@ -36,12 +40,14 @@ class AppendRuntimeTags
      * @param Escaper $escaper
      * @param SecureHtmlRenderer $secureRenderer
      * @param PageContext $pageContext
+     * @param ConsentBridge $consentBridge
      */
     public function __construct(
         private readonly Config $config,
         private readonly Escaper $escaper,
         private readonly SecureHtmlRenderer $secureRenderer,
-        private readonly PageContext $pageContext
+        private readonly PageContext $pageContext,
+        private readonly ConsentBridge $consentBridge
     ) {
     }
 
@@ -61,11 +67,27 @@ class AppendRuntimeTags
 
         $loading = $this->config->isAsync() ? ' async fetchpriority="high"' : '';
         return $result
+            . $this->consentTag()
             . '<script ' . self::MARKER . $this->pageAttributes() . $loading . ' src="'
             . $this->escaper->escapeUrl($this->config->getShopConfigUrl()) . '"></script>' . "\n"
             . $this->devHostsTag()
             . '<script ' . self::MARKER . $loading . ' src="'
             . $this->escaper->escapeUrl($this->config->getEngineUrl()) . '"></script>' . "\n";
+    }
+
+    /**
+     * The consent bridge, inline with the CSP nonce, or nothing when it cannot be read.
+     *
+     * @return string
+     */
+    private function consentTag(): string
+    {
+        $script = $this->consentBridge->script();
+        if ($script === '') {
+            return '';
+        }
+        $attributes = [self::MARKER => '', 'data-onetrust-category' => $this->config->getOneTrustCategory()];
+        return $this->secureRenderer->renderTag('script', $attributes, $script, false) . "\n";
     }
 
     /**
