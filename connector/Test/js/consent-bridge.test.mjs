@@ -27,8 +27,18 @@ function page({
   const calls = [];
   const window = { addEventListener: on('window') };
   if (dataLayer) window.dataLayer = dataLayer;
+  // A browser's jar, for the cookie the bridge writes; tests replace the rest wholesale.
+  let others = cookie;
+  let attribution = null;
   const document = {
-    cookie,
+    get cookie() {
+      return [others, attribution].filter(Boolean).join('; ');
+    },
+    set cookie(value) {
+      const match = /^variant_attribution=([^;]*)/.exec(value);
+      if (!match) others = value;
+      else attribution = /max-age=0/.test(value) ? null : 'variant_attribution=' + match[1];
+    },
     readyState,
     oneTrustScript,
     currentScript: {
@@ -47,6 +57,14 @@ function page({
     /** variant.js has run: the runtime's hook exists from now on. */
     runtime() {
       window.Variant = { setAnalyticsConsent: (value) => calls.push(value) };
+    },
+    /** The runtime's shared consent state, as variant.js publishes it, under the shop's mode. */
+    runtimeConsent(allowed) {
+      window.__VARIANT_CONSENT = { allowed: () => allowed() };
+    },
+    /** The cookie the bridge keeps for the store's server, or null. */
+    attribution() {
+      return attribution;
     },
     parsed() {
       document.readyState = 'interactive';
@@ -110,7 +128,10 @@ test('a OneTrust cookie left behind after the store removed OneTrust does not co
 
 test('OneTrust under its suffixed cookie names is read too', () => {
   const name = 'OptanonConsent-3f9a2c';
-  assert.equal(consent(page({ cookie: optanon('C0001:1,C0002:1', name), oneTrustScript: true })), true);
+  assert.equal(
+    consent(page({ cookie: optanon('C0001:1,C0002:1', name), oneTrustScript: true })),
+    true
+  );
   const awaiting = optanon('C0001:1,C0002:1', name, '&AwaitingReconsent=true');
   assert.equal(consent(page({ cookie: awaiting, oneTrustScript: true })), false);
 });
@@ -355,7 +376,12 @@ test("only Google's exact consent values count", () => {
 test('with no consent tool the page stays pending, even after load', () => {
   // Gate tracking and Strict are for stores with a consent tool. Allowing because the page
   // loaded would flush queued analytics before a tool a tag manager adds late could answer.
-  const p = page({ dataLayer: [['js', new Date()], ['config', 'G-1']] });
+  const p = page({
+    dataLayer: [
+      ['js', new Date()],
+      ['config', 'G-1'],
+    ],
+  });
   p.runtime();
   p.parsed();
   p.loaded();
@@ -380,4 +406,49 @@ test('a malformed consent cookie leaves the page pending, never throws', () => {
 
 test('a page already loaded with no consent tool is still pending', () => {
   assert.equal(consent(page({ readyState: 'complete' })), 'pending');
+});
+
+// ---- Purchase attribution, for the store's server
+
+test('purchases are attributable only while the runtime allows analytics', () => {
+  let allowed = false;
+  const p = page();
+  assert.equal(p.attribution(), null, 'nothing before variant.js has run');
+  p.runtimeConsent(() => allowed);
+  p.tick();
+  assert.equal(p.attribution(), null, 'Gate tracking, no consent yet');
+  allowed = true;
+  p.tick();
+  assert.equal(p.attribution(), 'variant_attribution=1');
+  allowed = false;
+  p.tick();
+  assert.equal(p.attribution(), null, 'a withdrawal removes it');
+});
+
+test('with Cookie consent Off the runtime always allows, so purchases are attributable', () => {
+  const p = page();
+  p.runtimeConsent(() => true);
+  p.tick();
+  assert.equal(p.attribution(), 'variant_attribution=1');
+});
+
+test("OneTrust's answer reaches the cookie as soon as the runtime takes it", () => {
+  let allowed = false;
+  const p = page({ oneTrustScript: true });
+  p.runtime();
+  p.runtimeConsent(() => allowed);
+  p.window.Variant.setAnalyticsConsent = (value) => {
+    allowed = value;
+  };
+  p.oneTrust(['C0001', 'C0002']);
+  assert.equal(p.attribution(), 'variant_attribution=1');
+});
+
+test("a throwing runtime answer is not an allow and doesn't break the page", () => {
+  const p = page();
+  p.runtimeConsent(() => {
+    throw new Error('not ready');
+  });
+  assert.doesNotThrow(() => p.tick());
+  assert.equal(p.attribution(), null);
 });

@@ -38,12 +38,21 @@
  * Re-checked every second as well as on the events above: banners in iframes or answered from
  * the keyboard change Consent Mode without a click on the page, and GTM replaces dataLayer.push,
  * so wrapping it would not see every update.
+ *
+ * It also tells the store's own server, through the `variant_attribution` cookie, whether this
+ * visitor's purchases may be matched to the tests they saw: the cart and order keep Variant's
+ * visitor ids only while it is set (Variant\Connector\Observer\SyncVisitorIds). The runtime's
+ * answer decides (window.__VARIANT_CONSENT, shared by its bundles), so the Cookie consent setting
+ * applies as it does to analytics: with Off it is always set; with Gate tracking only once the
+ * visitor allows analytics. Before variant.js has run it is never set.
  */
 (function (w, d) {
   var configured = d.currentScript && d.currentScript.getAttribute('data-onetrust-category');
   var CATEGORY = /^[A-Za-z0-9_-]+$/.test(configured || '') ? configured : 'C0002';
   // OptanonConsent, or a suffixed copy of it.
   var CONSENT_COOKIES = /(?:^|;\s*)OptanonConsent[^=;\s]*=[^;]*/g;
+  var ATTRIBUTION = 'variant_attribution';
+  var ATTRIBUTION_SET = /(?:^|;\s*)variant_attribution=1(?:;|$)/;
   var answer;
   var told;
   var oneTrustAnswered = false;
@@ -203,7 +212,27 @@
     return result;
   }
 
+  /** Keep the attribution cookie in step with whether the runtime allows analytics now. */
+  function share() {
+    try {
+      var state = w.__VARIANT_CONSENT;
+      var allowed = !!(state && typeof state.allowed === 'function' && state.allowed());
+      if (allowed !== ATTRIBUTION_SET.test(d.cookie)) {
+        var secure = w.location && w.location.protocol === 'https:' ? '; Secure' : '';
+        d.cookie =
+          ATTRIBUTION + (allowed ? '=1' : '=; max-age=0') + '; path=/; SameSite=Lax' + secure;
+      }
+    } catch (e) {
+      // An unreadable answer or blocked cookies: purchases are simply not attributed.
+    }
+  }
+
   function check() {
+    read();
+    share();
+  }
+
+  function read() {
     try {
       if (oneTrustOnPage()) {
         var value = oneTrust();
@@ -245,6 +274,7 @@
     ) {
       oneTrustAnswered = true;
       report(event.detail.indexOf(CATEGORY) !== -1);
+      share();
     } else {
       check();
     }

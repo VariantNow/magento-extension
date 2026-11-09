@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Variant. All rights reserved.
+ */
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="quote">
+        <column xsi:type="varchar" name="variant_user_id" nullable="true" length="64"
+                comment="Variant visitor id (gb_anonymous_id cookie) last seen on the cart"/>
+        <column xsi:type="varchar" name="variant_session_id" nullable="true" length="64"
+                comment="Variant session id (gb_session_id cookie) last seen on the cart"/>
+    </table>
+    <table name="sales_order">
+        <column xsi:type="varchar" name="variant_user_id" nullable="true" length="64"
+                comment="Variant visitor id of the shopper who placed the order"/>
+        <column xsi:type="varchar" name="variant_session_id" nullable="true" length="64"
+                comment="Variant session id the order was placed in"/>
+    </table>
+</schema>

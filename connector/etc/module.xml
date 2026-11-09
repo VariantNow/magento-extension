@@ -12,6 +12,9 @@
             <module name="Magento_Config"/>
             <module name="Magento_Csp"/>
             <module name="Magento_Integration"/>
+            <!-- db_schema.xml adds columns to their quote and sales_order tables. -->
+            <module name="Magento_Quote"/>
+            <module name="Magento_Sales"/>
         </sequence>
     </module>
 </config>

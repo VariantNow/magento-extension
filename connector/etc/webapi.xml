@@ -20,4 +20,13 @@
             <resource ref="Magento_Backend::store"/>
         </resources>
     </route>
+    <!-- Orders for test results: who placed each (Variant's visitor ids), totals, lines, refunds.
+         Read-only, and only for tokens holding Variant_Connector::api (the Variant integration,
+         and admins with full access). -->
+    <route url="/V1/variant/orders" method="GET">
+        <service class="Variant\Connector\Api\OrdersInterface" method="getUpdatedSince"/>
+        <resources>
+            <resource ref="Variant_Connector::api"/>
+        </resources>
+    </route>
 </routes>

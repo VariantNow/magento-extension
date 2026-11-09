@@ -1,0 +1,14 @@
+{
+  "quote": {
+    "column": {
+      "variant_user_id": true,
+      "variant_session_id": true
+    }
+  },
+  "sales_order": {
+    "column": {
+      "variant_user_id": true,
+      "variant_session_id": true
+    }
+  }
+}
